@@ -3,25 +3,13 @@
 
 __author__ = "Benny <benny.think@gmail.com>"
 
-import os
-import traceback
-
-from tqdm import tqdm
-import telebot
-import logging
-from telebot import apihelper
-
-from pyrogram import errors as tgerror
 import logging
 import os
-import pathlib
 import re
-import tempfile
-import typing
-from typing import Union, Any, Iterable
+import traceback
+from typing import Any, Union
 
 from pyrogram import Client, filters, types
-import math
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(filename)s [%(levelname)s]: %(message)s')
 
