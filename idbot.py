@@ -75,12 +75,17 @@ def getme_handler(client: "Client", message: "types.Message"):
     message.reply_text(me, quote=True)
 
 
-@app.on_message(filters.command(["pinng"]))
+@app.on_message(filters.command(["ping"]))
 def start_handler(client: "Client", message: "types.Message"):
+    logging.info("Pong!")
     chat_id = message.chat.id
     runtime = get_runtime("botsrunner_idbot_1")
     global service_count
-    client.send_message(chat_id, f"{runtime}\n\nService count:{service_count}")
+    if getattr(message.chat, "username", None) == "BennyThink":
+        msg = f"{runtime}\n\nService count:{service_count}"
+    else:
+        msg = runtime
+    client.send_message(chat_id, msg)
 
 
 @app.on_message(filters.command(["getgroup"]))
