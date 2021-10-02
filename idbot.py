@@ -10,6 +10,7 @@ import traceback
 from typing import Any, Union
 
 from pyrogram import Client, filters, types
+from tgbot_ping import get_runtime
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(filename)s [%(levelname)s]: %(message)s')
 
@@ -31,9 +32,12 @@ def create_app():
 
 
 app = create_app()
+service_count = 0
 
 
 def get_detail(user: "Union[types.User, types.Chat]") -> "str":
+    global service_count
+    service_count += 1
     if user is None:
         return "Can't get hidden forwards!"
 
@@ -71,7 +75,21 @@ def getme_handler(client: "Client", message: "types.Message"):
     message.reply_text(me, quote=True)
 
 
+@app.on_message(filters.command(["pinng"]))
+def start_handler(client: "Client", message: "types.Message"):
+    chat_id = message.chat.id
+    runtime = get_runtime("botsrunner_idbot_1")
+    global service_count
+    client.send_message(chat_id, f"{runtime}\n\nService count:{service_count}")
+
+
 @app.on_message(filters.command(["getgroup"]))
+def getgroup_handler(client: "Client", message: "types.Message"):
+    me = get_detail(message.chat)
+    message.reply_text(me, quote=True)
+
+
+@app.on_message(filters.command(["ping"]))
 def getgroup_handler(client: "Client", message: "types.Message"):
     me = get_detail(message.chat)
     message.reply_text(me, quote=True)

@@ -8,7 +8,8 @@ Get Telegram ID
 start - start
 help - help
 getme - get your account info
-getgroup -get group info(please add it to the group first)
+getgroup - get group info(please add it to the group first)
+ping - get running info
 ```
 
 # features
