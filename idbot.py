@@ -96,8 +96,9 @@ def getgroup_handler(client: "Client", message: "types.Message"):
 
 @app.on_message(filters.text & filters.group)
 def getgroup_compatibly_handler(client: "Client", message: "types.Message"):
-    if getattr(message.forward_from_chat, "type", None) == "channel":
-        logging.warning("this is from channel")
+    text = message.text
+    if getattr(message.forward_from_chat, "type", None) == "channel" or not re.findall(r"^/getgroup@.*bot$", text):
+        logging.warning("this is from channel or non-command text")
         return
 
     logging.info("compatibly getgroup")
