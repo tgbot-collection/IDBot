@@ -94,7 +94,18 @@ def getgroup_handler(client: "Client", message: "types.Message"):
     message.reply_text(me, quote=True)
 
 
-@app.on_message(filters.forwarded)
+@app.on_message(filters.text & filters.group)
+def getgroup_compatibly_handler(client: "Client", message: "types.Message"):
+    text = message.text
+    if getattr(message.forward_from_chat, "type", None) == "channel" or not re.findall(r"^/getgroup@.*bot$", text):
+        logging.warning("this is from channel or non-command text")
+        return
+
+    logging.info("compatibly getgroup")
+    getgroup_handler(client, message)
+
+
+@app.on_message(filters.forwarded & filters.private)
 def forward_handler(client: "Client", message: "types.Message"):
     fwd = message.forward_from or message.forward_from_chat
     me = get_detail(fwd)
@@ -102,8 +113,7 @@ def forward_handler(client: "Client", message: "types.Message"):
 
 
 @app.on_message(filters.text & filters.private)
-def forward_handler(client: "Client", message: "types.Message"):
-    print(123456)
+def private_handler(client: "Client", message: "types.Message"):
     username = re.sub(r"@+|https://t.me/", "", message.text)
 
     try:
