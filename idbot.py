@@ -94,12 +94,6 @@ def getgroup_handler(client: "Client", message: "types.Message"):
     message.reply_text(me, quote=True)
 
 
-@app.on_message(filters.command(["ping"]))
-def getgroup_handler(client: "Client", message: "types.Message"):
-    me = get_detail(message.chat)
-    message.reply_text(me, quote=True)
-
-
 @app.on_message(filters.forwarded)
 def forward_handler(client: "Client", message: "types.Message"):
     fwd = message.forward_from or message.forward_from_chat
@@ -109,6 +103,7 @@ def forward_handler(client: "Client", message: "types.Message"):
 
 @app.on_message(filters.text & filters.private)
 def forward_handler(client: "Client", message: "types.Message"):
+    print(123456)
     username = re.sub(r"@+|https://t.me/", "", message.text)
 
     try:
