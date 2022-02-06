@@ -120,7 +120,7 @@ def private_handler(client: "Client", message: "types.Message"):
         user: "Union[types.User, Any]" = client.get_users(username)
         me = get_detail(user)
     except Exception as me:
-        logging.error(traceback.format_exc(me))
+        logging.error(traceback.format_exc())
 
     message.reply_text(me, quote=True)
 
