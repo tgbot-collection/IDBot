@@ -1,7 +1,7 @@
 FROM python:3.9-alpine as builder
 
 RUN apk update && apk add  --no-cache tzdata alpine-sdk libffi-dev ca-certificates
-RUN pip3 install --user pyrogram tgbot-ping
+RUN pip3 install --user -r requirements.txt
 
 
 FROM python:3.9-alpine
