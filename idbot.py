@@ -19,11 +19,21 @@ TOKEN = os.getenv("TOKEN")
 APP_ID = os.getenv("APP_ID")
 APP_HASH = os.getenv("APP_HASH")
 
+# telegram DC map: https://docs.pyrogram.org/faq/what-are-the-ip-addresses-of-telegram-data-centers
+DC_MAP = {
+    1: "Miami",
+    2: "Amsterdam",
+    3: "Miami",
+    4: "Amsterdam",
+    5: "Singapore"
+}
+
 
 def create_app():
     _app = Client("idbot", APP_ID, APP_HASH, bot_token=TOKEN)
     if PROXY:
         _app.proxy = dict(
+            scheme="socks5",
             hostname=PROXY.split(":")[0],
             port=int(PROXY.split(":")[1])
         )
@@ -48,7 +58,7 @@ last name: `{user.last_name}`
 user id: `{user.id}`
 
 is bot: {getattr(user, "is_bot", None)}
-DC: {user.dc_id}
+DC: {user.dc_id} {DC_MAP.get(user.dc_id, "")}
 language code: {getattr(user, "language_code", None)}
 phone number: {getattr(user, "phone_number", None)}
     """
