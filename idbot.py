@@ -125,12 +125,12 @@ def forward_handler(client: "Client", message: "types.Message"):
 @app.on_message(filters.text & filters.private)
 def private_handler(client: "Client", message: "types.Message"):
     username = re.sub(r"@+|https://t.me/", "", message.text)
-
     try:
         user: "Union[types.User, Any]" = client.get_users(username)
         me = get_detail(user)
-    except Exception as me:
+    except Exception as e:
         logging.error(traceback.format_exc())
+        me = e
 
     message.reply_text(me, quote=True)
 
