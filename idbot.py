@@ -9,7 +9,7 @@ import re
 import traceback
 from typing import Any, Union
 
-from pyrogram import Client, filters, types
+from pyrogram import Client, filters, types, raw
 from tgbot_ping import get_runtime
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(filename)s [%(levelname)s]: %(message)s')
@@ -45,7 +45,7 @@ app = create_app()
 service_count = 0
 
 
-def get_detail(user: "Union[types.User, types.Chat]") -> "str":
+def get_user_detail(user: "Union[types.User, types.Chat]") -> "str":
     global service_count
     service_count += 1
     if user is None:
@@ -61,6 +61,18 @@ is bot: {getattr(user, "is_bot", None)}
 DC: {user.dc_id} {DC_MAP.get(user.dc_id, "")}
 language code: {getattr(user, "language_code", None)}
 phone number: {getattr(user, "phone_number", None)}
+    """
+
+
+def get_channel_detail(channel) -> "str":
+    global service_count
+    service_count += 1
+    return f"""
+Channel/group  detail(you can also forward message to see detail):
+
+name: `@{channel.chats[0].username} `
+title: `{channel.chats[0].title}`
+id: `-100{channel.chats[0].id}`
     """
 
 
@@ -81,7 +93,7 @@ def help_handler(client: "Client", message: "types.Message"):
 
 @app.on_message(filters.command(["getme"]))
 def getme_handler(client: "Client", message: "types.Message"):
-    me = get_detail(message.from_user)
+    me = get_user_detail(message.from_user)
     message.reply_text(me, quote=True)
 
 
@@ -100,7 +112,7 @@ def start_handler(client: "Client", message: "types.Message"):
 
 @app.on_message(filters.command(["getgroup"]))
 def getgroup_handler(client: "Client", message: "types.Message"):
-    me = get_detail(message.chat)
+    me = get_user_detail(message.chat)
     message.reply_text(me, quote=True)
 
 
@@ -118,21 +130,41 @@ def getgroup_compatibly_handler(client: "Client", message: "types.Message"):
 @app.on_message(filters.forwarded & filters.private)
 def forward_handler(client: "Client", message: "types.Message"):
     fwd = message.forward_from or message.forward_from_chat
-    me = get_detail(fwd)
+    me = get_user_detail(fwd)
     message.reply_text(me, quote=True)
+
+
+def get_users(username):
+    user: "Union[types.User, Any]" = app.get_users(username)
+    return get_user_detail(user)
+
+
+def get_channel(username):
+    peer: "Union[raw.base.InputChannel, Any]" = app.resolve_peer(username)
+    result = app.invoke(
+        raw.functions.channels.GetChannels(
+            id=[peer]
+        )
+    )
+    return get_channel_detail(result)
 
 
 @app.on_message(filters.text & filters.private)
 def private_handler(client: "Client", message: "types.Message"):
     username = re.sub(r"@+|https://t.me/", "", message.text)
-    try:
-        user: "Union[types.User, Any]" = client.get_users(username)
-        me = get_detail(user)
-    except Exception as e:
-        logging.error(traceback.format_exc())
-        me = e
+    funcs = [get_users, get_channel]
+    text = ""
 
-    message.reply_text(me, quote=True)
+    for func in funcs:
+        try:
+            text = func(username)
+            if text:
+                break
+        except Exception as e:
+            logging.error(traceback.format_exc())
+            text = e
+
+    message.reply_text(text, quote=True)
 
 
 if __name__ == '__main__':
